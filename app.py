@@ -5,14 +5,19 @@ import json
 app = Flask(__name__)
 
 desenvolvedores = [
-    {'nome': 'Rafael',
-     'habilidades': ['Python', 'Flask']
-     },
-    {'nome': 'Jacqueline',
-     'habilidades': ['Python', 'Django']}
+    {
+        'id': '0',
+        'nome': 'Rafael',
+        'habilidades': ['Python', 'Flask']
+    },
+    {
+        'id': 1,
+        'nome': 'Jacqueline',
+        'habilidades': ['Python', 'Django']}
 ]
 
 
+# devolve um desenvolvedor pelo ID, também altera e deleta um desenvolvedor
 @app.route('/dev/<int:id>/', methods=['GET', 'PUT', 'DELETE'])
 def desenvolvedor(id):
     if request.method == 'GET':
@@ -20,10 +25,10 @@ def desenvolvedor(id):
             response = desenvolvedores[id]
         except IndexError:
             mensagem = 'Desenvolvedor de ID {} existe'.format(id)
-            response = {'status' : 'erro', 'mensagem':mensagem}
+            response = {'status': 'erro', 'mensagem': mensagem}
         except Exception:
             mensagem = "Erro desconhecido. Procure o administrador da API"
-            response = {'status' : 'erro', 'mensagem':mensagem}
+            response = {'status': 'erro', 'mensagem': mensagem}
         return jsonify(response)
 
     elif request.method == 'PUT':
@@ -33,6 +38,20 @@ def desenvolvedor(id):
     elif request.method == 'DELETE':
         desenvolvedores.pop(id)
         return jsonify({'status': 'sucesso', 'mensagem': 'Registro excluido com sucesso'})
+
+
+# lista os desenvolvedores e permite inclusão de novo dev
+@app.route('/dev/', methods=['POST', 'GET'])
+def lista_desenvolvedores():
+    if request.method == 'POST':
+        dados = json.loads(request.data)
+        posicao = len(desenvolvedores)
+        dados['id'] = posicao
+        desenvolvedores.append(dados)
+        return jsonify(desenvolvedores[posicao])
+    # return jsonify({'status': 'sucesso', 'mensagem': 'Registro inserido'})
+    elif request.method == 'GET':
+        return jsonify(desenvolvedores)
 
 
 if __name__ == '__main__':
